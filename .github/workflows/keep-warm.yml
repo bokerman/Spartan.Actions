@@ -25,13 +25,13 @@ jobs:
           echo "response_time=$RESPONSE_TIME" >> $GITHUB_OUTPUT
           
           if [ "$HTTP_STATUS" = "200" ]; then
-            echo "? PROD is healthy"
+            echo " PROD is healthy"
             echo "status=healthy" >> $GITHUB_OUTPUT
           elif [ "$HTTP_STATUS" = "503" ] || [ "$HTTP_STATUS" = "000" ]; then
-            echo "?? PROD returned $HTTP_STATUS (may be waking up or unavailable)"
+            echo " PROD returned $HTTP_STATUS (may be waking up or unavailable)"
             echo "status=warning" >> $GITHUB_OUTPUT
           else
-            echo "? PROD returned unexpected status: $HTTP_STATUS"
+            echo " PROD returned unexpected status: $HTTP_STATUS"
             echo "status=unhealthy" >> $GITHUB_OUTPUT
           fi
 
@@ -43,11 +43,11 @@ jobs:
           server_port: 587
           username: ${{ secrets.BREVO_SMTP_USERNAME }}
           password: ${{ secrets.BREVO_SMTP_PASSWORD }}
-          subject: '?? SpartanGym PROD Health Check Failed'
+          subject: 'SpartanGym PROD Health Check Failed'
           to: ${{ secrets.ALERT_EMAIL }}
           from: 'SpartanGym Monitoring <noreply@spartangym.com>'
           body: |
-            ?? PRODUCTION Environment Health Check Failed
+            PRODUCTION Environment Health Check Failed
             
             Environment: PRODUCTION
             URL: https://${{ vars.PROD_API_URL }}/spartan/health
@@ -66,7 +66,7 @@ jobs:
 
       - name: Create PROD Health Summary
         run: |
-          echo "## ?? PROD Health Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## PROD Health Check Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Status:** ${{ steps.health-check-prod.outputs.status }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Response Code:** ${{ steps.health-check-prod.outputs.response_code }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Response Time:** ${{ steps.health-check-prod.outputs.response_time }}s" >> $GITHUB_STEP_SUMMARY
@@ -92,13 +92,13 @@ jobs:
           echo "response_time=$RESPONSE_TIME" >> $GITHUB_OUTPUT
           
           if [ "$HTTP_STATUS" = "200" ]; then
-            echo "? TEST is healthy"
+            echo "TEST is healthy"
             echo "status=healthy" >> $GITHUB_OUTPUT
           elif [ "$HTTP_STATUS" = "503" ] || [ "$HTTP_STATUS" = "000" ]; then
-            echo "?? TEST returned $HTTP_STATUS (may be waking up or unavailable)"
+            echo " TEST returned $HTTP_STATUS (may be waking up or unavailable)"
             echo "status=warning" >> $GITHUB_OUTPUT
           else
-            echo "? TEST returned unexpected status: $HTTP_STATUS"
+            echo "TEST returned unexpected status: $HTTP_STATUS"
             echo "status=unhealthy" >> $GITHUB_OUTPUT
           fi
 
@@ -110,11 +110,11 @@ jobs:
           server_port: 587
           username: ${{ secrets.BREVO_SMTP_USERNAME }}
           password: ${{ secrets.BREVO_SMTP_PASSWORD }}
-          subject: '?? SpartanGym TEST Health Check Failed'
+          subject: 'SpartanGym TEST Health Check Failed'
           to: ${{ secrets.ALERT_EMAIL }}
           from: 'SpartanGym Monitoring <noreply@spartangym.com>'
           body: |
-            ?? TEST Environment Health Check Failed
+            TEST Environment Health Check Failed
             
             Environment: TEST
             URL: https://${{ vars.TEST_API_URL }}/spartan/health
@@ -133,7 +133,7 @@ jobs:
 
       - name: Create TEST Health Summary
         run: |
-          echo "## ?? TEST Health Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## TEST Health Check Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Status:** ${{ steps.health-check-test.outputs.status }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Response Code:** ${{ steps.health-check-test.outputs.response_code }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Response Time:** ${{ steps.health-check-test.outputs.response_time }}s" >> $GITHUB_STEP_SUMMARY
@@ -147,11 +147,11 @@ jobs:
     steps:
       - name: Overall Health Summary
         run: |
-          echo "# ?? SpartanGym Health Check Report" >> $GITHUB_STEP_SUMMARY
+          echo "# SpartanGym Health Check Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Execution Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow:** Keep-Warm Scheduled Ping" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "? Keep-warm pings completed for both environments" >> $GITHUB_STEP_SUMMARY
+          echo "Keep-warm pings completed for both environments" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> Note: Individual environment health details are available in job summaries above." >> $GITHUB_STEP_SUMMARY
