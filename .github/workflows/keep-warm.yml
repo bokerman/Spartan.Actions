@@ -25,13 +25,13 @@ jobs:
           echo "response_time=$RESPONSE_TIME" >> $GITHUB_OUTPUT
           
           if [ "$HTTP_STATUS" = "200" ]; then
-            echo "? PROD is healthy"
+            echo "PROD is healthy"
             echo "status=healthy" >> $GITHUB_OUTPUT
           elif [ "$HTTP_STATUS" = "503" ] || [ "$HTTP_STATUS" = "000" ]; then
-            echo "?? PROD returned $HTTP_STATUS (may be waking up or unavailable)"
+            echo "Warning: PROD returned $HTTP_STATUS (may be waking up or unavailable)"
             echo "status=warning" >> $GITHUB_OUTPUT
           else
-            echo "? PROD returned unexpected status: $HTTP_STATUS"
+            echo "Error: PROD returned unexpected status: $HTTP_STATUS"
             echo "status=unhealthy" >> $GITHUB_OUTPUT
           fi
 
@@ -53,13 +53,13 @@ jobs:
                   "name": "Admin"
                 }
               ],
-              "subject": "?? SpartanGym PROD Health Check Failed",
-              "htmlContent": "<html><body><h2>?? PRODUCTION Environment Health Check Failed</h2><table style=\"border-collapse: collapse; width: 100%;\"><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Environment</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">PRODUCTION</td></tr><tr><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>URL</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">https://${{ vars.PROD_API_URL }}/spartan/health</td></tr><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Status Code</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ steps.health-check-prod.outputs.response_code }}</td></tr><tr><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Response Time</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ steps.health-check-prod.outputs.response_time }}s</td></tr><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Timestamp</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ github.event.repository.updated_at }}</td></tr></table><h3>Action Required:</h3><ol><li>Check Azure Container Apps health in Azure Portal</li><li>Review Application Insights logs</li><li>Verify database connectivity</li><li>Check recent deployments</li></ol><p><a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View Workflow Run</a></p></body></html>"
+              "subject": "ALERT: SpartanGym PROD Health Check Failed",
+              "htmlContent": "<html><body><h2>PRODUCTION Environment Health Check Failed</h2><table style=\"border-collapse: collapse; width: 100%;\"><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Environment</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">PRODUCTION</td></tr><tr><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>URL</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">https://${{ vars.PROD_API_URL }}/spartan/health</td></tr><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Status Code</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ steps.health-check-prod.outputs.response_code }}</td></tr><tr><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Response Time</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ steps.health-check-prod.outputs.response_time }}s</td></tr><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Timestamp</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ github.event.repository.updated_at }}</td></tr></table><h3>Action Required:</h3><ol><li>Check Azure Container Apps health in Azure Portal</li><li>Review Application Insights logs</li><li>Verify database connectivity</li><li>Check recent deployments</li></ol><p><a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View Workflow Run</a></p></body></html>"
             }'
 
       - name: Create PROD Health Summary
         run: |
-          echo "## ?? PROD Health Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## PROD Health Check Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Status:** ${{ steps.health-check-prod.outputs.status }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Response Code:** ${{ steps.health-check-prod.outputs.response_code }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Response Time:** ${{ steps.health-check-prod.outputs.response_time }}s" >> $GITHUB_STEP_SUMMARY
@@ -85,13 +85,13 @@ jobs:
           echo "response_time=$RESPONSE_TIME" >> $GITHUB_OUTPUT
           
           if [ "$HTTP_STATUS" = "200" ]; then
-            echo "? TEST is healthy"
+            echo "TEST is healthy"
             echo "status=healthy" >> $GITHUB_OUTPUT
           elif [ "$HTTP_STATUS" = "503" ] || [ "$HTTP_STATUS" = "000" ]; then
-            echo "?? TEST returned $HTTP_STATUS (may be waking up or unavailable)"
+            echo "Warning: TEST returned $HTTP_STATUS (may be waking up or unavailable)"
             echo "status=warning" >> $GITHUB_OUTPUT
           else
-            echo "? TEST returned unexpected status: $HTTP_STATUS"
+            echo "Error: TEST returned unexpected status: $HTTP_STATUS"
             echo "status=unhealthy" >> $GITHUB_OUTPUT
           fi
 
@@ -113,13 +113,13 @@ jobs:
                   "name": "Admin"
                 }
               ],
-              "subject": "?? SpartanGym TEST Health Check Failed",
-              "htmlContent": "<html><body><h2>?? TEST Environment Health Check Failed</h2><table style=\"border-collapse: collapse; width: 100%;\"><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Environment</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">TEST</td></tr><tr><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>URL</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">https://${{ vars.TEST_API_URL }}/spartan/health</td></tr><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Status Code</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ steps.health-check-test.outputs.response_code }}</td></tr><tr><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Response Time</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ steps.health-check-test.outputs.response_time }}s</td></tr><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Timestamp</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ github.event.repository.updated_at }}</td></tr></table><h3>Action Required:</h3><ol><li>Check Azure Container Apps health in Azure Portal</li><li>Review Application Insights logs</li><li>Verify database connectivity</li><li>Check recent deployments</li></ol><p><a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View Workflow Run</a></p></body></html>"
+              "subject": "WARNING: SpartanGym TEST Health Check Failed",
+              "htmlContent": "<html><body><h2>TEST Environment Health Check Failed</h2><table style=\"border-collapse: collapse; width: 100%;\"><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Environment</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">TEST</td></tr><tr><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>URL</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">https://${{ vars.TEST_API_URL }}/spartan/health</td></tr><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Status Code</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ steps.health-check-test.outputs.response_code }}</td></tr><tr><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Response Time</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ steps.health-check-test.outputs.response_time }}s</td></tr><tr style=\"background-color: #f2f2f2;\"><td style=\"border: 1px solid #ddd; padding: 8px;\"><strong>Timestamp</strong></td><td style=\"border: 1px solid #ddd; padding: 8px;\">${{ github.event.repository.updated_at }}</td></tr></table><h3>Action Required:</h3><ol><li>Check Azure Container Apps health in Azure Portal</li><li>Review Application Insights logs</li><li>Verify database connectivity</li><li>Check recent deployments</li></ol><p><a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View Workflow Run</a></p></body></html>"
             }'
 
       - name: Create TEST Health Summary
         run: |
-          echo "## ?? TEST Health Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## TEST Health Check Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Status:** ${{ steps.health-check-test.outputs.status }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Response Code:** ${{ steps.health-check-test.outputs.response_code }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Response Time:** ${{ steps.health-check-test.outputs.response_time }}s" >> $GITHUB_STEP_SUMMARY
@@ -133,11 +133,11 @@ jobs:
     steps:
       - name: Overall Health Summary
         run: |
-          echo "# ?? SpartanGym Health Check Report" >> $GITHUB_STEP_SUMMARY
+          echo "# SpartanGym Health Check Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Execution Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow:** Keep-Warm Scheduled Ping" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "? Keep-warm pings completed for both environments" >> $GITHUB_STEP_SUMMARY
+          echo "Keep-warm pings completed for both environments" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> Note: Individual environment health details are available in job summaries above." >> $GITHUB_STEP_SUMMARY
