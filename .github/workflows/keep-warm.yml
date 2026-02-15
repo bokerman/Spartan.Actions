@@ -10,26 +10,148 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping PROD Health Endpoint
+        id: health-check-prod
         run: |
           echo "Pinging PRODUCTION to keep warm..."
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ vars.PROD_API_URL }}/spartan/health || echo "000")
-          echo "PROD Response: $HTTP_STATUS"
+          
+          # Perform health check with timeout
+          START_TIME=$(date +%s)
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://${{ vars.PROD_API_URL }}/spartan/health || echo "000")
+          END_TIME=$(date +%s)
+          RESPONSE_TIME=$((END_TIME - START_TIME))
+          
+          echo "PROD Response: $HTTP_STATUS (${RESPONSE_TIME}s)"
+          echo "response_code=$HTTP_STATUS" >> $GITHUB_OUTPUT
+          echo "response_time=$RESPONSE_TIME" >> $GITHUB_OUTPUT
+          
           if [ "$HTTP_STATUS" = "200" ]; then
-            echo "✅ PROD is healthy"
+            echo "? PROD is healthy"
+            echo "status=healthy" >> $GITHUB_OUTPUT
+          elif [ "$HTTP_STATUS" = "503" ] || [ "$HTTP_STATUS" = "000" ]; then
+            echo "?? PROD returned $HTTP_STATUS (may be waking up or unavailable)"
+            echo "status=warning" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ PROD returned $HTTP_STATUS (may be waking up)"
+            echo "? PROD returned unexpected status: $HTTP_STATUS"
+            echo "status=unhealthy" >> $GITHUB_OUTPUT
           fi
+
+      - name: Send Email Alert on PROD Failure
+        if: steps.health-check-prod.outputs.status == 'unhealthy'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          username: ${{ secrets.BREVO_SMTP_USERNAME }}
+          password: ${{ secrets.BREVO_SMTP_PASSWORD }}
+          subject: '?? SpartanGym PROD Health Check Failed'
+          to: ${{ secrets.ALERT_EMAIL }}
+          from: 'SpartanGym Monitoring <noreply@spartangym.com>'
+          body: |
+            ?? PRODUCTION Environment Health Check Failed
+            
+            Environment: PRODUCTION
+            URL: https://${{ vars.PROD_API_URL }}/spartan/health
+            Status Code: ${{ steps.health-check-prod.outputs.response_code }}
+            Response Time: ${{ steps.health-check-prod.outputs.response_time }}s
+            Timestamp: ${{ github.event.repository.updated_at }}
+            
+            Action Required:
+            1. Check Azure Container Apps health in Azure Portal
+            2. Review Application Insights logs
+            3. Verify database connectivity
+            4. Check recent deployments
+            
+            Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          priority: high
+
+      - name: Create PROD Health Summary
+        run: |
+          echo "## ?? PROD Health Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ steps.health-check-prod.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Response Code:** ${{ steps.health-check-prod.outputs.response_code }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Response Time:** ${{ steps.health-check-prod.outputs.response_time }}s" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://${{ vars.PROD_API_URL }}/spartan/health" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
 
   ping-test:
     runs-on: ubuntu-latest
     steps:
       - name: Ping TEST Health Endpoint
+        id: health-check-test
         run: |
           echo "Pinging TEST to keep warm..."
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ vars.TEST_API_URL }}/spartan/health || echo "000")
-          echo "TEST Response: $HTTP_STATUS"
+          
+          # Perform health check with timeout
+          START_TIME=$(date +%s)
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://${{ vars.TEST_API_URL }}/spartan/health || echo "000")
+          END_TIME=$(date +%s)
+          RESPONSE_TIME=$((END_TIME - START_TIME))
+          
+          echo "TEST Response: $HTTP_STATUS (${RESPONSE_TIME}s)"
+          echo "response_code=$HTTP_STATUS" >> $GITHUB_OUTPUT
+          echo "response_time=$RESPONSE_TIME" >> $GITHUB_OUTPUT
+          
           if [ "$HTTP_STATUS" = "200" ]; then
-            echo "✅ TEST is healthy"
+            echo "? TEST is healthy"
+            echo "status=healthy" >> $GITHUB_OUTPUT
+          elif [ "$HTTP_STATUS" = "503" ] || [ "$HTTP_STATUS" = "000" ]; then
+            echo "?? TEST returned $HTTP_STATUS (may be waking up or unavailable)"
+            echo "status=warning" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ TEST returned $HTTP_STATUS (may be waking up)"
+            echo "? TEST returned unexpected status: $HTTP_STATUS"
+            echo "status=unhealthy" >> $GITHUB_OUTPUT
           fi
+
+      - name: Send Email Alert on TEST Failure
+        if: steps.health-check-test.outputs.status == 'unhealthy'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          username: ${{ secrets.BREVO_SMTP_USERNAME }}
+          password: ${{ secrets.BREVO_SMTP_PASSWORD }}
+          subject: '?? SpartanGym TEST Health Check Failed'
+          to: ${{ secrets.ALERT_EMAIL }}
+          from: 'SpartanGym Monitoring <noreply@spartangym.com>'
+          body: |
+            ?? TEST Environment Health Check Failed
+            
+            Environment: TEST
+            URL: https://${{ vars.TEST_API_URL }}/spartan/health
+            Status Code: ${{ steps.health-check-test.outputs.response_code }}
+            Response Time: ${{ steps.health-check-test.outputs.response_time }}s
+            Timestamp: ${{ github.event.repository.updated_at }}
+            
+            Action Required:
+            1. Check Azure Container Apps health in Azure Portal
+            2. Review Application Insights logs
+            3. Verify database connectivity
+            4. Check recent deployments
+            
+            Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          priority: normal
+
+      - name: Create TEST Health Summary
+        run: |
+          echo "## ?? TEST Health Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ steps.health-check-test.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Response Code:** ${{ steps.health-check-test.outputs.response_code }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Response Time:** ${{ steps.health-check-test.outputs.response_time }}s" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://${{ vars.TEST_API_URL }}/spartan/health" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+
+  summary:
+    runs-on: ubuntu-latest
+    needs: [ping-prod, ping-test]
+    if: always()
+    steps:
+      - name: Overall Health Summary
+        run: |
+          echo "# ?? SpartanGym Health Check Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Execution Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** Keep-Warm Scheduled Ping" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "? Keep-warm pings completed for both environments" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> Note: Individual environment health details are available in job summaries above." >> $GITHUB_STEP_SUMMARY
