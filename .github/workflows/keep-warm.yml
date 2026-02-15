@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.BREVO_SMTP_PASSWORD }}
           subject: 'SpartanGym PROD Health Check Failed'
           to: ${{ secrets.ALERT_EMAIL }}
-          from: bojan.ruzic@gmail.com
+          from: gymnastics.backend@gmail.com
           body: |
             PRODUCTION Environment Health Check Failed
             
@@ -112,7 +112,7 @@ jobs:
           password: ${{ secrets.BREVO_SMTP_PASSWORD }}
           subject: 'SpartanGym TEST Health Check Failed'
           to: ${{ secrets.ALERT_EMAIL }}
-          from: bojan.ruzic@gmail.com
+          from: gymnastics.backend@gmail.com
           body: |
             TEST Environment Health Check Failed
             
@@ -155,4 +155,5 @@ jobs:
           echo "Keep-warm pings completed for both environments" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> Note: Individual environment health details are available in job summaries above." >> $GITHUB_STEP_SUMMARY
+
 
