@@ -1,0 +1,55 @@
+# =============================================================================
+# Keep Container Apps Warm - Scheduled Health Check Ping
+# =============================================================================
+# This workflow pings your Container Apps every 10 minutes during business hours
+# to prevent cold starts. Runs only during typical gym hours (6 AM - 10 PM EST).
+#
+# Cost: FREE (uses GitHub Actions minutes - generous free tier)
+# =============================================================================
+
+name: Keep Warm - Scheduled Ping
+
+on:
+  schedule:
+    # Runs every 10 minutes during business hours (6 AM - 10 PM EST)
+    # Cron is in UTC, so 6 AM EST = 11 AM UTC, 10 PM EST = 3 AM UTC next day
+    # This covers 11:00 UTC to 03:00 UTC (next day)
+    
+    # Every 10 minutes from 11:00-23:59 UTC (6 AM - 7 PM EST)
+    - cron: '*/10 11-23 * * *'
+    # Every 10 minutes from 00:00-03:00 UTC (7 PM - 10 PM EST)
+    - cron: '*/10 0-3 * * *'
+  
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+jobs:
+  ping-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping PROD Health Endpoint
+        run: |
+          echo "Pinging PRODUCTION to keep warm..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ vars.PROD_API_URL }}/health || echo "000")
+          echo "PROD Response: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "? PROD is healthy"
+          else
+            echo "?? PROD returned $HTTP_STATUS (may be waking up)"
+          fi
+
+  ping-test:
+    runs-on: ubuntu-latest
+    # Only ping TEST during weekday business hours to save resources
+    if: github.event.schedule != '*/10 0-3 * * *'
+    steps:
+      - name: Ping TEST Health Endpoint
+        run: |
+          echo "Pinging TEST to keep warm..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ vars.TEST_API_URL }}/health || echo "000")
+          echo "TEST Response: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "? TEST is healthy"
+          else
+            echo "?? TEST returned $HTTP_STATUS (may be waking up)"
+          fi
