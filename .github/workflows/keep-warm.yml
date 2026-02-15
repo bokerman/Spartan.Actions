@@ -30,7 +30,7 @@ jobs:
       - name: Ping PROD Health Endpoint
         run: |
           echo "Pinging PRODUCTION to keep warm..."
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ vars.PROD_API_URL }}/health || echo "000")
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ vars.PROD_API_URL }}/spartan/health || echo "000")
           echo "PROD Response: $HTTP_STATUS"
           if [ "$HTTP_STATUS" = "200" ]; then
             echo "? PROD is healthy"
@@ -46,7 +46,7 @@ jobs:
       - name: Ping TEST Health Endpoint
         run: |
           echo "Pinging TEST to keep warm..."
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ vars.TEST_API_URL }}/health || echo "000")
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ vars.TEST_API_URL }}/spartan/health || echo "000")
           echo "TEST Response: $HTTP_STATUS"
           if [ "$HTTP_STATUS" = "200" ]; then
             echo "? TEST is healthy"
