@@ -52,6 +52,11 @@ Set up the following secrets in **Settings ? Secrets and variables ? Actions ? S
    - **Password:** Your SMTP password or API key
 4. Add these credentials as GitHub secrets (see above)
 
+**Important:** The workflow uses `bojan.ruzic@gmail.com` as the sender email. This must be a verified sender in your Brevo account. To verify:
+- Go to Brevo ? **Senders & IP** ? **Senders**
+- Ensure `bojan.ruzic@gmail.com` is listed and verified
+- If not, add and verify it before using email alerts
+
 ## ?? Alert Behavior
 
 ### Production Alerts (High Priority)
