@@ -1,4 +1,4 @@
-﻿name: Keep Warm - Scheduled Ping
+name: Keep Warm - Scheduled Ping
 
 on:
   schedule:
@@ -68,6 +68,7 @@ jobs:
 
   ping-test:
     runs-on: ubuntu-latest
+    if: false  # Disabled - remove this line to re-enable
     steps:
       - name: Ping TEST Health Endpoint
         id: health-check-test
@@ -128,7 +129,7 @@ jobs:
 
   summary:
     runs-on: ubuntu-latest
-    needs: [ping-prod, ping-test]
+    needs: [ping-prod]
     if: always()
     steps:
       - name: Overall Health Summary
@@ -141,4 +142,3 @@ jobs:
           echo "Keep-warm pings completed for both environments" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> Note: Individual environment health details are available in job summaries above." >> $GITHUB_STEP_SUMMARY
-
